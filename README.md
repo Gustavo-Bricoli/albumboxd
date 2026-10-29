@@ -15,39 +15,42 @@ Em desenvolvimento.
 
 ## Frontend
 
-The UI is a React/Vite application in `frontend/`. During development, Vite
-serves the page at `http://localhost:5173` and proxies `/api` requests to the
-Spring backend at `http://localhost:8080`.
+A interface é uma aplicação React/Vite localizada em `frontend/`. Durante o
+desenvolvimento, o Vite disponibiliza a aplicação em
+`http://localhost:5173` e encaminha as requisições para `/api` no backend
+Spring em `http://localhost:8080`.
 
-To connect Spotify metadata:
+### Configurando os metadados do Spotify
 
-1. Create an app in the [Spotify Developer Dashboard](https://developer.spotify.com/dashboard).
-2. Copy `.env.example` to `.env` and replace both placeholder values. The `.env`
-   file is ignored by Git and must not be committed:
+1. Crie uma aplicação no [Spotify Developer Dashboard](https://developer.spotify.com/dashboard).
+2. Copie `.env.example` para `.env` e substitua os dois valores de exemplo. O
+   arquivo `.env` é ignorado pelo Git e não deve ser commitado:
 
    ```powershell
    Copy-Item .env.example .env
    ```
 
-   Or set both variables in the same PowerShell window used to start the
-   backend:
+   Como alternativa, defina as duas variáveis na mesma janela do PowerShell
+   usada para iniciar o backend:
 
    ```powershell
    $env:SPOTIFY_CLIENT_ID = "your-client-id"
    $env:SPOTIFY_CLIENT_SECRET = "your-client-secret"
    ```
 
-3. Start Spring Boot from `backend/album_boxd_api`.
-4. Start React from `frontend` with `npm install` and `npm run dev`.
+3. Inicie o Spring Boot a partir de `backend/album_boxd_api`.
+4. Inicie o React a partir de `frontend` usando `npm install` e `npm run dev`.
 
-The React page searches Spotify through the Spring `/api/albums` endpoint.
-The backend uses Spotify's Client Credentials flow, so the client secret never
-reaches the browser. For a production/static build, run `npm run build`; Vite
-outputs the bundle to Spring Boot's `src/main/resources/static` directory.
+A página React pesquisa o catálogo do Spotify por meio do endpoint Spring
+`/api/albums`. O backend usa o fluxo de autenticação Client Credentials do
+Spotify, portanto o client secret nunca chega ao navegador. Para gerar uma
+build estática/de produção, execute `npm run build`; o Vite colocará os
+arquivos gerados no diretório `src/main/resources/static` do Spring Boot.
 
-The React app includes an `All albums` page at `/#all-albums` with Spotify
-search, year filtering, relevance/newest/oldest sorting, and a load-more
-control. The API supports pagination with `limit` (1-10) and `offset`:
+A aplicação React inclui uma página `All albums` em `/#all-albums`, com busca no
+Spotify, filtro por ano, ordenação por relevância/mais recentes/mais antigos e
+um botão para carregar mais resultados. A API oferece paginação com `limit`
+(1-10) e `offset`:
 
 ```text
 /api/albums?query=year:2024&limit=10&offset=0
@@ -55,24 +58,27 @@ control. The API supports pagination with `limit` (1-10) and `offset`:
 
 ## Docker
 
-Docker Compose runs PostgreSQL, the Spring API, and the React development server:
+O Docker Compose executa o PostgreSQL, a API Spring e o servidor de
+desenvolvimento React:
 
 ```powershell
 docker compose up --build
 ```
 
-If you use the PowerShell method, run those two `$env:` commands immediately
-before `docker compose up --build` in the same terminal. If the variables are
-missing, `/api/albums` returns `502` with a configuration message instead of
-calling Spotify.
+Se você usar o método com PowerShell, execute os dois comandos `$env:`
+imediatamente antes de `docker compose up --build`, na mesma janela do
+terminal. Se as variáveis não estiverem definidas, `/api/albums` retornará
+`502` com uma mensagem de configuração sem chamar o Spotify.
 
-Open the React app at `http://localhost:5173` or the API at
-`http://localhost:8080`. Stop the stack with `docker compose down`; add
-`-v` only when you intentionally want to delete the PostgreSQL volume.
+Abra a aplicação React em `http://localhost:5173` ou a API em
+`http://localhost:8080`. Para parar os serviços, use
+`docker compose down`; adicione `-v` somente quando quiser apagar
+intencionalmente o volume do PostgreSQL.
 
-The Spotify credentials are passed into the API container at runtime and are
-not stored in the image or exposed to the frontend container.
+As credenciais do Spotify são passadas para o container da API em tempo de
+execução. Elas não são armazenadas na imagem nem expostas ao container do
+frontend.
 
-The Compose PostgreSQL password is currently `postgres` for local development
-only. Change it before using the database outside a local development
-environment.
+A senha do PostgreSQL no Compose é atualmente `postgres` e deve ser usada
+somente em desenvolvimento local. Altere-a antes de utilizar o banco fora de
+um ambiente local.
